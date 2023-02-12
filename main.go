@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/integrii/flaggy"
 	"github.com/saintfish/chardet"
@@ -92,7 +94,11 @@ func cp437toUTF8(b []byte, convertSpaces bool) string {
 	for i := range r {
 		r[i] = cp437[b[i]]
 	}
-	return string(r)
+	lf := strings.ReplaceAll(string(r), "\u000D\u000A", "\u000A")
+	if runtime.GOOS == "windows" {
+		return strings.ReplaceAll(lf, "\u000A", "\u000D\u000A")
+	}
+	return lf
 }
 
 func exit(err error) {
