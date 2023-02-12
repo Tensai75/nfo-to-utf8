@@ -17,6 +17,7 @@ var appVersion string
 var fileName string
 var spaces = false
 var verbose = false
+var linebreaks = false
 
 func init() {
 	appExec, _ = os.Executable()
@@ -24,6 +25,7 @@ func init() {
 	flaggy.SetDescription("A command line tool to convert NFO files from CP437 to UTF-8 encoding")
 	flaggy.AddPositionalValue(&fileName, "NFO", 1, true, "Path to the NFO file to be converted")
 	flaggy.Bool(&spaces, "s", "spaces", "Convert spaces to non-breaking spaces")
+	flaggy.Bool(&linebreaks, "l", "linebreaks", "Convert line breaks to correct characters for the system (LF for Linux/Mac and CRLF for Windows)")
 	flaggy.Bool(&verbose, "v", "verbose", "Show verbose output")
 	if appVersion != "" {
 		flaggy.SetVersion(appVersion)
@@ -90,15 +92,21 @@ func cp437toUTF8(b []byte, convertSpaces bool) string {
 		space = "\u00A0"
 	}
 	var cp437 = []rune("\u0000☺☻♥♦♣♠•◘○\u000A♂♀\u000D♬☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼" + space + "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»\u2591\u2592\u2593│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\u00A0")
-	r := make([]rune, len(b))
-	for i := range r {
-		r[i] = cp437[b[i]]
+	runes := make([]rune, len(b))
+	for i := range runes {
+		runes[i] = cp437[b[i]]
 	}
-	lf := strings.ReplaceAll(string(r), "\u000D\u000A", "\u000A")
-	if runtime.GOOS == "windows" {
-		return strings.ReplaceAll(lf, "\u000A", "\u000D\u000A")
+	utf8 := string(runes)
+	if linebreaks {
+		if verbose {
+			fmt.Println("Replacing line break characters")
+		}
+		utf8 = strings.ReplaceAll(utf8, "\u000D\u000A", "\u000A")
+		if runtime.GOOS == "windows" {
+			utf8 = strings.ReplaceAll(utf8, "\u000A", "\u000D\u000A")
+		}
 	}
-	return lf
+	return utf8
 }
 
 func exit(err error) {
