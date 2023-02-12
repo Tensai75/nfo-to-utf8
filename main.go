@@ -41,12 +41,12 @@ func main() {
 			exit(err)
 		} else {
 			if verbose {
-				fmt.Printf("File %s succesfully converted to UTF-8", fileName)
+				fmt.Printf("File %s succesfully converted to UTF-8\n", fileName)
 			}
 		}
 	} else {
 		if verbose {
-			fmt.Printf("File %s is not CP437 encoded, exiting...", fileName)
+			fmt.Printf("File %s is not CP437 encoded, exiting...\n", fileName)
 		}
 		exit(nil)
 	}
@@ -63,7 +63,7 @@ func detectEncoding(data []byte) string {
 			fmt.Printf("Detected encoding: %s\n", result.Charset)
 		}
 	}
-	if result.Charset == "ISO-8859-1" {
+	if result.Charset == "ISO-8859-1" || result.Charset == "Shift_JIS" {
 		if verbose {
 			fmt.Println("Assuming it is CP437")
 		}
