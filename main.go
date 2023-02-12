@@ -72,7 +72,7 @@ func detectEncoding(data []byte) string {
 			fmt.Printf("Detected encoding: %s\n", result.Charset)
 		}
 	}
-	if result.Charset == "ISO-8859-1" || result.Charset == "Shift_JIS" {
+	if strings.Contains(result.Charset, "ISO-8859") || strings.Contains(result.Charset, "windows") || strings.Contains(result.Charset, "KOI8") || strings.Contains(result.Charset, "IBM") || result.Charset == "Shift_JIS" {
 		if verbose {
 			fmt.Println("Assuming it is CP437")
 		}
