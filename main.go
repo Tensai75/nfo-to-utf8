@@ -56,6 +56,13 @@ func detectEncoding(data []byte) string {
 	detector := chardet.NewTextDetector()
 	result, err := detector.DetectBest(data)
 	if err != nil {
+		if err.Error() == "Charset not detected." {
+			if verbose {
+				fmt.Println("Charset not detected")
+				fmt.Println("Assuming it is CP437")
+			}
+			return "CP437"
+		}
 		exit(fmt.Errorf("failed decoding data from file: %s", err))
 	}
 	if verbose {
@@ -90,7 +97,7 @@ func cp437toUTF8(b []byte, convertSpaces bool) string {
 
 func exit(err error) {
 	if err != nil {
-		fmt.Printf("ERROR: %s", err)
+		fmt.Printf("ERROR: %s\n", err)
 		os.Exit(1)
 	}
 	os.Exit(0)
